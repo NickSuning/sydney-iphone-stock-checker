@@ -3,6 +3,9 @@ on:
   push:
     paths:
       - 'stock_check.py'
+      - 'stock_monitor.py'
+      - 'validate_pickup.py'
+      - 'test_monitor_logic.py'
       - 'test_stock_check.py'
       - '.github/workflows/unit-tests.yml'
   workflow_dispatch:
@@ -17,4 +20,4 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - run: python -m unittest -v test_stock_check.py
+      - run: python -m unittest -v test_stock_check.py test_monitor_logic.py
