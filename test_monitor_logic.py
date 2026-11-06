@@ -63,5 +63,29 @@ class StockMonitorTests(unittest.TestCase):
         self.assertFalse(self.state.exists())
 
 
+    def test_email_contains_store_time_and_checkout_link(self):
+        from unittest.mock import MagicMock
+        smtp = MagicMock()
+        smtp.__enter__.return_value = smtp
+        with patch.dict("os.environ", {
+            "GMAIL_ADDRESS": "nickysuning@gmail.com",
+            "GMAIL_APP_PASSWORD": "dummy-test-secret",
+        }), patch.object(stock_monitor.smtplib, "SMTP_SSL", return_value=smtp):
+            stock_monitor.send_alert([item("Chatswood Chase", "available")])
+        msg = smtp.send_message.call_args.args[0]
+        self.assertIn("Chatswood Chase", msg["Subject"])
+        self.assertIn("STOCK NOW", msg["Subject"])
+        self.assertIn(stock_monitor.APPLE_PRODUCT_URL, msg.get_body(preferencelist=("plain",)).get_content())
+        self.assertIn("store", msg.get_body(preferencelist=("plain",)).get_content().lower())
+
+    def test_no_email_for_unavailable_store(self):
+        with patch.dict("os.environ", {
+            "GMAIL_ADDRESS": "nickysuning@gmail.com",
+            "GMAIL_APP_PASSWORD": "dummy-test-secret",
+        }), patch.object(stock_monitor.smtplib, "SMTP_SSL") as smtp:
+            with self.assertRaises(ValueError):
+                stock_monitor.send_alert([item("Chatswood Chase", "unavailable")])
+            smtp.assert_not_called()
+
 if __name__ == "__main__":
     unittest.main()
