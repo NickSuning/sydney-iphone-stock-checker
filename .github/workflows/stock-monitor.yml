@@ -30,11 +30,28 @@ jobs:
         if: always()
         run: |
           if test -f .stock_alert_state.json; then
+            # Save the observation before refreshing the checkout.
+            cp .stock_alert_state.json /tmp/iphone-alert-state.json
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add .stock_alert_state.json
-            if ! git diff --cached --quiet; then
+            for attempt in 1 2 3 4; do
+              git fetch origin main
+              # Only the runner checkout is reset. Never force-push the remote.
+              git reset --hard origin/main
+              cp /tmp/iphone-alert-state.json .stock_alert_state.json
+              git add .stock_alert_state.json
+              if git diff --cached --quiet; then
+                echo "Alert state is already current"
+                exit 0
+              fi
               git commit -m "Update iPhone stock alert state [skip ci]"
-              git push
-            fi
+              if git push origin HEAD:main; then
+                echo "Alert state persisted"
+                exit 0
+              fi
+              echo "Remote branch changed; retrying state-only commit ($attempt/4)"
+              sleep 2
+            done
+            echo "::error::Could not persist alert state after four attempts"
+            exit 1
           fi
