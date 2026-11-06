@@ -5,9 +5,9 @@ No email notifications or background schedule are enabled by this module.
 from dataclasses import dataclass
 
 PART_NUMBER = "MK2E4X/A"
-# Accept only these six official Apple Sydney-area store names.
+# Accept only these seven official Greater Sydney store names.
 SYDNEY_STORES = frozenset({
-    "Sydney", "Broadway", "Bondi", "Chatswood Chase", "Miranda", "Castle Towers",
+    "Sydney", "Broadway", "Bondi", "Chatswood Chase", "Miranda", "Castle Towers", "Penrith",
 })
 
 @dataclass(frozen=True)
