@@ -14,3 +14,6 @@ Official purchase page: https://www.apple.com/au/shop/buy-iphone/iphone-duo/7.6-
 5. Only then add a 5-minute cron schedule. A scheduled GitHub Actions run may be delayed.
 
 Sender: `nickysuning@gmail.com`. Do not publish or share the app password.
+
+## Endpoint validation result (6 Nov 2026)
+Manual GitHub Actions validation run `42171282621` returned HTTP **541** from the candidate Apple Australia `/au/shop/fulfillment-messages` endpoint. This is an unverified endpoint response, **not** evidence of inventory availability or unavailability. The SKU `MK2E4X/A` matches Australian retailer listings for the specified colour/capacity, but Apple pickup API support for this SKU and store locations remains unverified. Do not enable an unattended polling schedule or stock-alert email until a working and permitted inventory source has been tested, including a positive and negative response.
