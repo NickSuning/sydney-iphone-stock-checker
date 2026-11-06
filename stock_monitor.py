@@ -44,7 +44,7 @@ def send_alert(stores):
 
     detected_at = timestamp()
     names = ", ".join(item.store for item in stores)
-    details = "\\n".join(
+    details = "\n".join(
         f"- Apple {item.store} (store ID {item.store_number})" for item in stores
     )
     msg = EmailMessage()
@@ -54,14 +54,14 @@ def send_alert(stores):
     msg["X-Priority"] = "1"
     msg["Importance"] = "high"
     msg.set_content(
-        f"STOCK DETECTED at {detected_at} (Sydney time)\\n\\n"
-        f"Exact SKU: {PART_NUMBER} (iPhone Duo 256GB Night Sky)\\n"
-        f"Pickup store(s):\\n{details}\\n\\n"
-        f"OPEN APPLE NOW: {APPLE_PRODUCT_URL}\\n\\n"
+        f"STOCK DETECTED at {detected_at} (Sydney time)\n\n"
+        f"Exact SKU: {PART_NUMBER} (iPhone Duo 256GB Night Sky)\n"
+        f"Pickup store(s):\n{details}\n\n"
+        f"OPEN APPLE NOW: {APPLE_PRODUCT_URL}\n\n"
         "Select the exact 256GB Night Sky variant and the indicated pickup store. "
         "Confirm the pickup window in Apple's checkout, apply your Apple Account "
         "balance and place the order yourself. Availability can disappear quickly. "
-        "The alert does not reserve stock.\\n"
+        "The alert does not reserve stock.\n"
     )
     safe_names = escape(names)
     safe_url = escape(APPLE_PRODUCT_URL, quote=True)
