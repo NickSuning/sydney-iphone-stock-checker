@@ -72,7 +72,7 @@ def send_alert(stores):
         f'<p>Exact Australian SKU: {escape(PART_NUMBER)}</p>'
         f'<p><a href="{safe_url}" style="display:inline-block;padding:14px 20px;'
         f'background:#0866cc;color:white;text-decoration:none;font-weight:bold">'
-        f'Open Apple product checkout</a></p>'
+        f'Open Apple product page</a></p>'
         f'<p>Select the listed store and confirm its earliest offered pickup window. '
         f'Apply Apple Account balance and submit the order yourself.</p>'
         f'<p>Availability is not reserved by this alert. '
