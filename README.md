@@ -48,3 +48,8 @@ Security: GitHub Actions uses encrypted `GMAIL_ADDRESS` and `GMAIL_APP_PASSWORD`
 - **Regression tests:** Offline unit tests cover partial results, repeated positives, unknown stores and failed email attempts.
 
 Note that a passing run does not prove Apple's checkout will hold an item until purchase. The exact Australian SKU association and Apple product URL should be reconfirmed against customer checkout when acting on an alert.
+
+## Faster purchase handoff — 7 November 2026
+The stock alert now puts the available Apple Store directly in the email subject, marks its priority high, includes a Sydney-local detection timestamp, and presents a clickable official Apple product-page link in both HTML and plain text email. It does not claim to reserve inventory or offer a preselected checkout session. Regression tests cover alert format and rejection of unavailable status.
+
+See [FAST_CHECKOUT.md](FAST_CHECKOUT.md) for preparing Apple Account sign-in, balance and pickup details on your own iPhone before the next short-lived stock release. No account credentials are stored in the repository.
