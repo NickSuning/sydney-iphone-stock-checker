@@ -60,3 +60,10 @@ Alerts now put `STOCK NOW` and the detected store name in the subject, and inclu
 For best manual checkout speed, sign into Apple's store on a trusted iPhone beforehand, verify the purchase configuration and payment options, then use the alert link. Do not assume an item in the shopping bag is reserved. Regression tests cover available-only alert content without sending real email.
 
 This change does not make GitHub's five-minute scheduled runner more frequent or guarantee that a stock window will remain open after an alert.
+
+## Two-minute polling mode (7 November 2026)
+GitHub Actions itself cannot reliably schedule new workflow runs every two minutes; instead, `stock-monitor.yml` launches approximately every **six minutes** using a timezone-aware `2-59/6 7-21 * * *` schedule and `poll_stock.py` performs up to **three checks spaced 120 seconds apart** within each runner. The script enforces the **07:00 inclusive to 22:00 exclusive Australia/Sydney** window for each individual check, including manual dispatch and delayed runners. GitHub's scheduling and network latency mean this is a best-effort cadence, not a guaranteed real-time two-minute SLA.
+
+The existing `stock_monitor.main()` still verifies exact candidate part `MK2E4X/A` at the seven Greater Sydney stores, sends Gmail only for previously unalerted confirmed `available` responses, and uses `.stock_alert_state.json` to suppress duplicates. Three consecutive checks share state within one runner; the workflow commits it once at the end, even if a later check fails. GitHub's concurrency group prevents overlapping runners from changing the same alert state in parallel. Five Apple postcode requests per check yield up to 15 postcode queries every six minutes (about 450 per day-hour if all execute); watch for HTTP 429/541 and reduce frequency if Apple imposes restrictions.
+
+The test suite includes a fake-clock test for check timing, cutoff, error recovery and Australian daylight saving. To check CI: GitHub Actions -> Offline unit tests. To test real endpoint separately: manually run the stock-monitor workflow and inspect the logs.
