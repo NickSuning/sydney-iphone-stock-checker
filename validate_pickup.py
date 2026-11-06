@@ -12,7 +12,7 @@ import urllib.request
 
 from stock_check import PART_NUMBER, SYDNEY_STORES, parse_pickup
 
-POSTCODES = ("2000", "2067", "2228", "2154")
+POSTCODES = ("2000", "2067", "2228", "2154", "2750")
 ENDPOINT = "https://www.apple.com/au/shop/retail/pickup-message"
 
 
@@ -72,7 +72,7 @@ def main():
     if errors or missing:
         print("Diagnostic failed closed: do not enable alerts.")
         return 1
-    print("Six-store response coverage validated for candidate SKU.")
+    print("Seven-store response coverage validated for candidate SKU.")
     print("SKU identity and actual customer checkout still require independent verification.")
     return 0
 
