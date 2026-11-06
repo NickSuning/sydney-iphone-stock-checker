@@ -1,0 +1,20 @@
+name: Offline unit tests
+on:
+  push:
+    paths:
+      - 'stock_check.py'
+      - 'test_stock_check.py'
+      - '.github/workflows/unit-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python -m unittest -v test_stock_check.py
