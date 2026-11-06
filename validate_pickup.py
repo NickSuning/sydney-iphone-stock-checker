@@ -1,69 +1,81 @@
-"""Read-only diagnostic of Apple's undocumented Australia retail pickup interface.
+"""Greater Sydney Apple pickup diagnostic. Read-only; never sends alerts.
 
-No scheduling, no notification and no conclusion from missing or rejected data.
+Queries multiple postcodes because Apple limits the returned stores by proximity.
+Failure to retrieve all six locations results in nonzero exit status.
 """
 import json
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
 
-PART_NUMBER = "MK2E4X/A"  # Candidate Australian SKU; confirm against Apple catalogue.
-POSTCODE = "2000"
-ENDPOINT = "https://www.apple.com/au/shop/retail/pickup-message"
-VALID_STATES = {"available", "unavailable", "ineligible"}
+from stock_check import PART_NUMBER, SYDNEY_STORES, parse_pickup
 
-def main():
+POSTCODES = ("2000", "2067", "2228", "2154")
+ENDPOINT = "https://www.apple.com/au/shop/retail/pickup-message"
+
+
+def fetch(postcode):
     params = urllib.parse.urlencode({
         "pl": "true",
         "mts.0": "regular",
         "parts.0": PART_NUMBER,
-        "location": POSTCODE,
+        "location": postcode,
     })
     request = urllib.request.Request(
         ENDPOINT + "?" + params,
         headers={"Accept": "application/json", "User-Agent": "Mozilla/5.0"},
     )
-    print("Endpoint:", ENDPOINT, "| postal code:", POSTCODE, "| candidate SKU:", PART_NUMBER)
     try:
         with urllib.request.urlopen(request, timeout=15) as response:
-            status = response.status
-            data = json.load(response)
-            print("HTTP status:", status)
+            print("Postcode", postcode, "HTTP", response.status, flush=True)
+            return json.load(response)
     except urllib.error.HTTPError as exc:
-        print("Endpoint rejected request: HTTP", exc.code, "(not an inventory result)", file=sys.stderr)
-        return 1
+        raise RuntimeError(f"Postcode {postcode}: HTTP {exc.code}") from exc
     except (urllib.error.URLError, ValueError, TimeoutError, OSError) as exc:
-        print("Endpoint not verified:", type(exc).__name__, "(not an inventory result)", file=sys.stderr)
-        return 1
+        raise RuntimeError(f"Postcode {postcode}: {type(exc).__name__}") from exc
 
-    if not isinstance(data, dict) or not isinstance(data.get("body"), dict):
-        print("Unexpected response: missing body object", file=sys.stderr)
-        return 1
-    stores = data["body"].get("stores")
-    if not isinstance(stores, list) or not stores:
-        print("Unexpected response: no stores list", file=sys.stderr)
-        return 1
-    print("Stores returned:", len(stores))
-    validated = 0
-    for store in stores:
-        if not isinstance(store, dict):
-            continue
-        parts = store.get("partsAvailability")
-        item = parts.get(PART_NUMBER) if isinstance(parts, dict) else None
-        state = item.get("pickupDisplay") if isinstance(item, dict) else None
-        name = store.get("storeName", "(unnamed)")
-        number = store.get("storeNumber", "(no store ID)")
-        print("Store:", str(name)[:70], "| ID:", str(number)[:15], "| state:", state if state in VALID_STATES else "UNKNOWN")
-        if state in VALID_STATES and name and number:
-            validated += 1
 
-    print("Stores with recognized candidate-SKU state:", validated, "/", len(stores))
-    if validated == 0:
-        print("Not validated: no recognized inventory states for candidate SKU", file=sys.stderr)
+def collect():
+    matched = {}
+    failed = []
+    for i, postcode in enumerate(POSTCODES):
+        if i:
+            time.sleep(1)
+        try:
+            for result in parse_pickup(fetch(postcode)):
+                prior = matched.get(result.store)
+                if prior and (
+                    prior.store_number != result.store_number
+                    or prior.pickup_display != result.pickup_display
+                ):
+                    failed.append(f"Conflicting results for {result.store}")
+                else:
+                    matched[result.store] = result
+        except (RuntimeError, ValueError) as exc:
+            failed.append(str(exc))
+    return matched, failed
+
+
+def main():
+    print("Apple pickup diagnostic: candidate AU part", PART_NUMBER)
+    matched, errors = collect()
+    for name in sorted(SYDNEY_STORES):
+        result = matched.get(name)
+        print(name, ":", (result.pickup_display + " | " + result.store_number) if result else "NOT RETURNED")
+    if errors:
+        print("Errors:", "; ".join(errors), file=sys.stderr)
+    missing = SYDNEY_STORES - matched.keys()
+    if missing:
+        print("Coverage incomplete:", ", ".join(sorted(missing)), file=sys.stderr)
+    if errors or missing:
+        print("Diagnostic failed closed: do not enable alerts.")
         return 1
-    print("Diagnostic only. Do NOT interpret this as validation of SKU identity, complete Sydney coverage, or alerts.")
+    print("Six-store response coverage validated for candidate SKU.")
+    print("SKU identity and actual customer checkout still require independent verification.")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
