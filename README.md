@@ -53,3 +53,10 @@ Note that a passing run does not prove Apple's checkout will hold an item until 
 The stock alert now puts the available Apple Store directly in the email subject, marks its priority high, includes a Sydney-local detection timestamp, and presents a clickable official Apple product-page link in both HTML and plain text email. It does not claim to reserve inventory or offer a preselected checkout session. Regression tests cover alert format and rejection of unavailable status.
 
 See [FAST_CHECKOUT.md](FAST_CHECKOUT.md) for preparing Apple Account sign-in, balance and pickup details on your own iPhone before the next short-lived stock release. No account credentials are stored in the repository.
+
+## Fast checkout handoff (7 November 2026)
+Alerts now put `STOCK NOW` and the detected store name in the subject, and include the Sydney timestamp, exact SKU, and a one-tap link to the Apple Australia product page in HTML and plain text. The link opens the product page, **not** a guaranteed reserved cart or store-selected checkout. Final store selection, pickup window, Apple Account balance application, authentication, and purchase remain manual. Never store Apple Account credentials/cookies in GitHub. Email high-priority headers do not guarantee mobile push timing.
+
+For best manual checkout speed, sign into Apple's store on a trusted iPhone beforehand, verify the purchase configuration and payment options, then use the alert link. Do not assume an item in the shopping bag is reserved. Regression tests cover available-only alert content without sending real email.
+
+This change does not make GitHub's five-minute scheduled runner more frequent or guarantee that a stock window will remain open after an alert.
