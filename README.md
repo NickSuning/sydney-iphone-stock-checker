@@ -1,6 +1,6 @@
 # Sydney iPhone Duo stock checker
 
-**Status: validation only; no scheduled checks or stock alerts enabled.**
+**Status: 5-minute scheduled workflow committed. Alerts are fail-closed if the live Apple endpoint does not return all seven Greater Sydney stores with valid exact-SKU statuses.**
 
 Target: Apple iPhone Duo 256GB Night Sky, Australian retailer part number `MK2E4X/A`.
 
@@ -30,3 +30,12 @@ Do **not** add a five-minute schedule or stock-available alerts until:
 - Exact-SKU identity and a positive and negative stock response are independently validated.
 - SMTP delivery test succeeds.
 - Deduplication/notification state and customer-facing Apple purchase link are tested.
+
+## Scheduled monitor
+The `.github/workflows/stock-monitor.yml` workflow runs every five minutes (best-effort GitHub scheduling). `stock_monitor.py` requests the Apple Australia pickup interface for postcodes 2000, 2067, 2228, 2154, 2750, requiring valid responses for every listed store: Sydney, Broadway, Bondi, Chatswood Chase, Miranda, Castle Towers, **Penrith**. Failure of any query, conflicting store status or missing store causes no stock alert.
+
+When the exact candidate part number `MK2E4X/A` reports `pickupDisplay=available`, the script sends a Gmail email to `nickysu@126.com` identifying the store and linking to the exact Apple AU product page. The GitHub workflow commits `.stock_alert_state.json` only when the set of alerted stores changes, suppressing repeated alerts while availability remains unchanged. A store may alert again after it is observed unavailable and later reappears as available.
+
+**Important:** The prior successful manual test was for a six-store list. The seven-store version, including Penrith, needs to be confirmed through workflow logs. Until full coverage works, the monitor deliberately does not email. A GitHub schedule is not an exact real-time 5-minute guarantee. Successful SMTP submission does not guarantee push delivery.
+
+Security: GitHub Actions uses encrypted `GMAIL_ADDRESS` and `GMAIL_APP_PASSWORD` repository secrets. No credentials belong in source control. 
