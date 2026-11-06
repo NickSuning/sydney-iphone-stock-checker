@@ -24,7 +24,7 @@ def main():
             payload = json.load(response)
             print("HTTP:", response.status)
     except (urllib.error.URLError, ValueError, TimeoutError) as exc:
-        print("Endpoint not verified:", type(exc).__name__, file=sys.stderr)
+        print("Endpoint not verified:", type(exc).__name__, "HTTP status:", getattr(exc, "code", "n/a"), file=sys.stderr)
         return 1
     body = payload.get("body", {}) if isinstance(payload, dict) else {}
     content = body.get("content", {}) if isinstance(body, dict) else {}
