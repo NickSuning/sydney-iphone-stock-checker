@@ -39,3 +39,12 @@ When the exact candidate part number `MK2E4X/A` reports `pickupDisplay=available
 **Important:** The prior successful manual test was for a six-store list. The seven-store version, including Penrith, needs to be confirmed through workflow logs. Until full coverage works, the monitor deliberately does not email. A GitHub schedule is not an exact real-time 5-minute guarantee. Successful SMTP submission does not guarantee push delivery.
 
 Security: GitHub Actions uses encrypted `GMAIL_ADDRESS` and `GMAIL_APP_PASSWORD` repository secrets. No credentials belong in source control. 
+
+## Reliability improvements — 7 November 2026
+- **Independent store alerts:** A failed postcode request or missing store no longer suppresses a valid exact-SKU `available` response at another Sydney store. Contradictory responses for the same store quarantine *that store*, with no alert for it.
+- **Sydney-time logs:** Each queried postcode and each of the seven store statuses is printed with an Australia/Sydney timestamp. Missing stores are explicitly `UNKNOWN`, never `unavailable`.
+- **Deduplication:** If a store cannot be checked, its previous alerted state is retained, avoiding a duplicate email when the source recovers. Only a confirmed `unavailable` or `ineligible` observation resets that store.
+- **Operating window:** 7:02 am to 9:57 pm Australia/Sydney (best-effort five-minute GitHub scheduling). Manual dispatch remains possible outside this window.
+- **Regression tests:** Offline unit tests cover partial results, repeated positives, unknown stores and failed email attempts.
+
+Note that a passing run does not prove Apple's checkout will hold an item until purchase. The exact Australian SKU association and Apple product URL should be reconfirmed against customer checkout when acting on an alert.
