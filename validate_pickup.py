@@ -46,10 +46,25 @@ def collect():
         if i:
             time.sleep(1)
         try:
-            rows = parse_pickup(fetch(postcode))
-        except (RuntimeError, ValueError) as exc:
+            response = fetch(postcode)
+        except RuntimeError as exc:
             issues.append(str(exc))
             continue
+        body = response.get("body") if isinstance(response, dict) else None
+        stores = body.get("stores") if isinstance(body, dict) else None
+        if not isinstance(stores, list):
+            issues.append(f"Postcode {postcode}: invalid store response")
+            continue
+        rows = []
+        for store in stores:
+            if not isinstance(store, dict) or store.get("storeName") not in SYDNEY_STORES:
+                continue
+            try:
+                rows.extend(parse_pickup({"body": {"stores": [store]}}))
+            except ValueError as exc:
+                issues.append(f"Postcode {postcode}: {exc}")
+        if not rows:
+            issues.append(f"Postcode {postcode}: no valid target store result")
         for item in rows:
             if item.store in conflicted:
                 continue
