@@ -1,17 +1,17 @@
-"""Two stock checks per GitHub Actions run, 150 seconds apart, around the clock."""
+"""Four-hour manual session: 120 checks, two minutes apart."""
 import time
 
 import stock_monitor
 
-CHECK_INTERVAL_SECONDS = 150
-CHECKS_PER_RUN = 2
+CHECK_INTERVAL_SECONDS = 120
+CHECKS_PER_RUN = 120
 
 
 def run_checks(check=None, monotonic=None, sleep=None):
-    """Perform both checks, retaining the on-disk deduplication state.
+    """Perform session checks, retaining the on-disk deduplication state.
 
-    A failed first check does not prevent a second check. The GitHub runner
-    persists the state file after the second check.
+    A failed check does not prevent later checks. The runner persists
+    the final alert state after the session.
     """
     check = check or stock_monitor.main
     monotonic = monotonic or time.monotonic
