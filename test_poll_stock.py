@@ -19,14 +19,14 @@ class Clock:
         self.seconds += seconds
 
 class PollTests(unittest.TestCase):
-    def test_three_checks_at_two_minute_intervals(self):
+    def test_two_checks_at_150_second_intervals(self):
         clock = Clock(datetime(2026, 11, 7, 9, 0, tzinfo=SYDNEY))
         observed = []
         def check():
             observed.append(clock.seconds)
             return 0
         self.assertEqual(poll_stock.run_checks(check, clock.now, clock.monotonic, clock.sleep), 0)
-        self.assertEqual(observed, [0, 120, 240])
+        self.assertEqual(observed, [0, 150])
 
     def test_before_start_has_no_checks(self):
         clock = Clock(datetime(2026, 11, 7, 6, 59, tzinfo=SYDNEY))
@@ -35,19 +35,19 @@ class PollTests(unittest.TestCase):
         check.assert_not_called()
 
     def test_never_checks_after_ten_pm(self):
-        clock = Clock(datetime(2026, 11, 7, 21, 57, tzinfo=SYDNEY))
+        clock = Clock(datetime(2026, 11, 7, 21, 58, tzinfo=SYDNEY))
         observed = []
         def check():
             observed.append(clock.seconds)
             return 0
         self.assertEqual(poll_stock.run_checks(check, clock.now, clock.monotonic, clock.sleep), 0)
-        self.assertEqual(observed, [0, 120])
+        self.assertEqual(observed, [0, 150])
 
     def test_error_recovery(self):
         clock = Clock(datetime(2026, 11, 7, 11, 0, tzinfo=SYDNEY))
-        check = Mock(side_effect=[RuntimeError("simulated error"), 1, 0])
+        check = Mock(side_effect=[RuntimeError("simulated error"), 0])
         self.assertEqual(poll_stock.run_checks(check, clock.now, clock.monotonic, clock.sleep), 0)
-        self.assertEqual(check.call_count, 3)
+        self.assertEqual(check.call_count, 2)
 
     def test_all_checks_fail(self):
         clock = Clock(datetime(2026, 11, 7, 11, 0, tzinfo=SYDNEY))
