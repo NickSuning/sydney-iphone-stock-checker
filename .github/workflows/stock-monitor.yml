@@ -1,8 +1,5 @@
 name: Greater Sydney iPhone Duo stock alerts
 on:
-  schedule:
-    - cron: '2-59/5 7-21 * * *'
-      timezone: 'Australia/Sydney'
   workflow_dispatch:
 
 permissions:
