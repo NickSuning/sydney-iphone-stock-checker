@@ -1,8 +1,5 @@
 name: Greater Sydney iPhone Duo stock alerts
 on:
-  schedule:
-    # Standard GitHub UTC cron, every five minutes around the clock.
-    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -15,7 +12,7 @@ concurrency:
 jobs:
   stock-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 250
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -27,7 +24,7 @@ jobs:
         env:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-        run: python stock_monitor.py
+        run: python poll_stock.py
       - name: Persist last alerted store states
         if: always()
         run: |
