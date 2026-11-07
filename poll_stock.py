@@ -1,6 +1,6 @@
-"""Three best-effort checks per GitHub Actions run, two minutes apart.
+"""Two best-effort checks per GitHub Actions run, 150 seconds apart.
 
-The GitHub cron launches one run every six minutes. Every check is gated by
+The GitHub cron launches one run every five minutes. Every check is gated by
 Sydney local time, including manual dispatches and delayed jobs.
 """
 from datetime import datetime
@@ -10,8 +10,8 @@ from zoneinfo import ZoneInfo
 import stock_monitor
 
 SYDNEY_TZ = ZoneInfo("Australia/Sydney")
-CHECK_INTERVAL_SECONDS = 120
-CHECKS_PER_RUN = 3
+CHECK_INTERVAL_SECONDS = 150
+CHECKS_PER_RUN = 2
 START_HOUR = 7
 END_HOUR = 22
 
@@ -22,7 +22,7 @@ def in_operating_window(current):
 
 
 def run_checks(check=None, now=None, monotonic=None, sleep=None):
-    """Poll at most three times; individual errors do not stop later polls.
+    """Poll at most twice; individual errors do not stop later polls.
 
     Consecutive checks share a local alert state file; the GitHub workflow
     commits that file once the runner finishes.
