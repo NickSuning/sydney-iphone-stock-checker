@@ -27,7 +27,7 @@ jobs:
         env:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-        run: python poll_stock.py
+        run: python stock_monitor.py
       - name: Persist last alerted store states
         if: always()
         run: |
