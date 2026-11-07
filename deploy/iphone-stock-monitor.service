@@ -1,0 +1,23 @@
+[Unit]
+Description=Greater Sydney exact-iPhone pickup monitor (continuous)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=iphone-stock
+Group=iphone-stock
+WorkingDirectory=/opt/sydney-iphone-stock-checker
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/etc/iphone-stock-monitor.env
+ExecStart=/usr/bin/python3 /opt/sydney-iphone-stock-checker/continuous_monitor.py
+Restart=always
+RestartSec=15
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/sydney-iphone-stock-checker
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
