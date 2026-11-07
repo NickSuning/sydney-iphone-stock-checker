@@ -3,7 +3,7 @@ on:
   schedule:
     # UTC trigger covers both AEDT (UTC+11) and AEST (UTC+10).
     # poll_stock.py strictly enforces 07:00-22:00 Australia/Sydney.
-    - cron: '2-59/6 20-23,0-12 * * *'
+    - cron: '3-59/6 20-23,0-12 * * *'
   workflow_dispatch:
 
 permissions:
@@ -22,6 +22,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
+      - name: Log workflow trigger
+        run: echo "Workflow trigger = ${{ github.event_name }}; scheduled cron = ${{ github.event.schedule }}"
       - name: Check each Apple Store independently for exact-model stock and alert
         env:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
