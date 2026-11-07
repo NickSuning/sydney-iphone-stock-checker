@@ -15,7 +15,7 @@ concurrency:
 jobs:
   stock-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -27,7 +27,7 @@ jobs:
         env:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-        run: python stock_monitor.py
+        run: python poll_stock.py
       - name: Persist last alerted store states
         if: always()
         run: |
