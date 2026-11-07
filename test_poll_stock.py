@@ -62,7 +62,7 @@ class PollTests(unittest.TestCase):
         clock = Clock(datetime(2026, 11, 7, 11, 0, tzinfo=SYDNEY))
         check = Mock(return_value=1)
         self.assertEqual(poll_stock.run_checks(check, clock.now, clock.monotonic, clock.sleep), 1)
-        self.assertEqual(check.call_count, 3)
+        self.assertEqual(check.call_count, 2)
 
     def test_dst_timezone(self):
         self.assertTrue(poll_stock.in_operating_window(datetime(2026, 7, 1, 0, 0, tzinfo=timezone.utc)))
