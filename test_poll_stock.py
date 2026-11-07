@@ -35,13 +35,22 @@ class PollTests(unittest.TestCase):
         check.assert_not_called()
 
     def test_never_checks_after_ten_pm(self):
-        clock = Clock(datetime(2026, 11, 7, 21, 58, tzinfo=SYDNEY))
+        clock = Clock(datetime(2026, 11, 7, 21, 57, tzinfo=SYDNEY))
         observed = []
         def check():
             observed.append(clock.seconds)
             return 0
         self.assertEqual(poll_stock.run_checks(check, clock.now, clock.monotonic, clock.sleep), 0)
         self.assertEqual(observed, [0, 150])
+
+    def test_late_evening_second_check_is_skipped(self):
+        clock = Clock(datetime(2026, 11, 7, 21, 58, tzinfo=SYDNEY))
+        observed = []
+        def check():
+            observed.append(clock.seconds)
+            return 0
+        self.assertEqual(poll_stock.run_checks(check, clock.now, clock.monotonic, clock.sleep), 0)
+        self.assertEqual(observed, [0])
 
     def test_error_recovery(self):
         clock = Clock(datetime(2026, 11, 7, 11, 0, tzinfo=SYDNEY))
